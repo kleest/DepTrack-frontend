@@ -118,6 +118,7 @@
                       <div class="list-group">
                         <span v-for="apiKey in apiKeys">
                           <actionable-list-group-item :value="apiKey.key" :delete-icon="true" v-on:actionClicked="removeApiKey(apiKey)"/>
+                          <b-form-input id="input-api-key-description" :placeholder="TODOplaceholder" type="text" :value="apiKey.description" v-model="apiKey.description" v-debounce:750ms="updateApiKey(apiKey)" :debounce-events="'keyup'" />
                         </span>
                         <actionable-list-group-item :add-icon="true" v-on:actionClicked="createApiKey()"/>
                       </div>
@@ -245,6 +246,19 @@
                       }
                     }
                     this.apiKeys = k;
+                    this.$toastr.s(this.$t('message.updated'));
+                  }).catch((error) => {
+                    this.$toastr.w(this.$t('condition.unsuccessful_action'));
+                  });
+                },
+                updateApiKey: function(apiKey) {
+                  let url = `${this.$api.BASE_URL}/${this.$api.URL_TEAM}/key/${apiKey.key}`;
+                  this.axios.put(url, apiKey).then((response) => {
+                    for (let i=0; i<this.apiKeys.length; i++) {
+                      if (this.apiKeys[i].key === apiKey.key) {
+                        this.apiKeys[i].description = apiKey.description;
+                      }
+                    }
                     this.$toastr.s(this.$t('message.updated'));
                   }).catch((error) => {
                     this.$toastr.w(this.$t('condition.unsuccessful_action'));
